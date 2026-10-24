@@ -40,7 +40,7 @@ flowchart LR
 
 ## 🎬 3D Visualization
 
-![3D visualization](results/3d_visualization.png)
+![3D visualization](Screen Recording 2026-09-27 121736.zip)
 
 *(Add a GIF here if you can: `results/attitude_animation.gif`)*
 
