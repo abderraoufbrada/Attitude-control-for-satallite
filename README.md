@@ -40,9 +40,13 @@ flowchart LR
 
 ## 🎬 3D Visualization
 
-![3D visualization](Screen Recording 2026-09-27 121736.zip)
+## 🎬 3D Visualization
 
-*(Add a GIF here if you can: `results/attitude_animation.gif`)*
+[![3D visualization](results/3d_visualization.png)](https://youtu.be/YOUR_VIDEO_ID)
+
+*Click the image to watch the simulation video.*
+
+
 
 ## ⚙️ Simulation parameters
 
