@@ -1,8 +1,8 @@
-# 🛰️ Satellite Attitude Determination & Control — MATLAB/Simulink
+# 🛰️ Satellite Attitude Control — MATLAB/Simulink with 3D Visualization
 
-Closed-loop **three-axis satellite attitude control** simulation (quaternion kinematics + rigid-body dynamics + PD controller), together with an **Extended Kalman Filter (EKF)** that estimates attitude and **gyroscope bias** from gyroscope, Sun sensor and magnetometer measurements.
+Closed-loop **three-axis satellite attitude control** simulation in **MATLAB/Simulink** (quaternion kinematics + rigid-body dynamics + PD controller), with a **3D visualization script** that animates the satellite orientation from the simulation results.
 
-Developed during an immersion internship at the **Satellite Development Center (CDS)**, Algerian Space Agency (ASAL), Oran — 01–15 September 2026.
+Developed during an immersion internship at the **Satellite Development Center (CDS)**, Algerian Space Agency (ASAL), Oran — 01 to 15 September 2026.
 
 ![MATLAB](https://img.shields.io/badge/MATLAB-Simulink-orange)
 ![Topic](https://img.shields.io/badge/topic-ADCS-blue)
@@ -12,17 +12,18 @@ Developed during an immersion internship at the **Satellite Development Center (
 
 ## 📌 Overview
 
-The goal is to understand how **attitude sensors, estimation, control torques and satellite dynamics** work together in an ADCS (Attitude Determination and Control System).
+The goal of this project is to understand how **attitude sensors, control torques and satellite dynamics** work together in an ADCS (Attitude Determination and Control System).
 
-| Part | What it does |
-|------|--------------|
-| **Dynamics** | Rigid-body rotation: `I·ω̇ = −ω × (Iω + h) + T_ext + T_ctrl` |
+The satellite starts with an initial orientation and the controller drives it to a desired roll, pitch and yaw. The simulation results are sent to the MATLAB workspace and then displayed in a 3D view.
+
+| Part | Description |
+|------|-------------|
 | **Kinematics** | Quaternion propagation: `q̇ = ½ Ω(ω) q` |
-| **Controller** | PD attitude controller (gains `Kp`, `Kd`) |
-| **Estimator** | 7-state EKF: quaternion (4) + gyro bias (3) |
-| **Sensors (simulated)** | 3-axis gyroscope, Sun sensor, magnetometer |
+| **Dynamics** | Rigid-body rotation: `I·ω̇ = −ω × (Iω + h) + T_ext + T_ctrl` |
+| **Controller** | PD attitude controller (`Kp`, `Kd`) |
+| **Visualization** | 3D animation of the satellite attitude (MATLAB script) |
 
-## 🧩 System architecture
+## 🧩 Control loop
 
 ```mermaid
 flowchart LR
@@ -31,14 +32,17 @@ flowchart LR
     C --> T[Control torque]
     T --> S[Satellite dynamics]
     S --> K[Quaternion kinematics]
-    K --> A[Attitude angles]
+    K --> A[Roll / Pitch / Yaw]
     A --> E
-    S -. true attitude .-> M[Simulated sensors<br/>Gyro / Sun / Magnetometer]
-    M --> F[EKF + gyro bias estimation]
-    F -. estimated attitude & bias .-> E
+    A --> W[(MATLAB workspace)]
+    W --> V[3D visualization]
 ```
 
-> Adjust the diagram to match your exact Simulink connections (for example, whether the controller uses the true or the estimated attitude).
+## 🎬 3D Visualization
+
+![3D visualization](results/3d_visualization.png)
+
+*(Add a GIF here if you can: `results/attitude_animation.gif`)*
 
 ## ⚙️ Simulation parameters
 
@@ -48,47 +52,28 @@ flowchart LR
 | Desired attitude (roll, pitch, yaw) | `[−10, 15, 45]` deg |
 | Orbital angular velocity `ω_orb` | `[0, −0.0011, 0]` rad/s |
 | Inertia matrix `J` | `diag(120, 113, 2)` kg·m² |
-| Controller gains | `Kp = 0.4`, `Kd = 12.25` |
-| EKF initial covariance `P₀` | `1e-3 · I₇` |
-| EKF process noise `Q` | `1e-6 · I₇` |
-| EKF measurement noise `R` | `1e-3 · I₆` |
-| Reference Sun vector `s_I` | `[1, 0, 0]ᵀ` |
-| Reference magnetic vector `m_I` | `[0.2, 0.1, 0.45]ᵀ` |
-
-## 📐 Mathematical model (summary)
-
-**Quaternion kinematics**
-
-$$\dot{q} = \tfrac{1}{2}\,\Omega(\omega)\,q, \qquad \|q\| = 1$$
-
-**Rigid-body dynamics**
-
-$$I\dot{\omega} = -\omega \times (I\omega + h) + T_{ext} + T_{ctrl}$$
-
-**Gyroscope model and bias compensation**
-
-$$\omega_{gyro} = \omega_{true} + b + n_g, \qquad \omega_{corr} = \omega_{gyro} - \hat{b}$$
-
-**EKF measurement model**
-
-$$s_{pred} = A(q)\,s_I, \qquad m_{pred} = A(q)\,m_I, \qquad r = \begin{bmatrix} s_{meas}-s_{pred} \\ m_{meas}-m_{pred} \end{bmatrix}$$
-
-The measurement Jacobian `H` (6×7) is computed by finite differences (`δ = 1e-6`) with zero columns for the bias states. Full derivation is in the [internship report](docs/Internship_Report.pdf).
+| Proportional gain `Kp` | `0.4` |
+| Derivative gain `Kd` | `12.25` |
 
 ## 📊 Results
 
-| Final attitude angles | Attitude error | Angular velocity |
-|:---:|:---:|:---:|
-| ![angles](results/final_angles.png) | ![error](results/attitude_error.png) | ![omega](results/angular_velocity.png) |
+### Final attitude angles
+![Final angles](results/final_angles.png)
 
-**Key observations** *(fill in with your real numbers)*
+### Attitude error
+![Attitude error](results/attitude_error.png)
 
-- Settling time: `__ s`
-- Steady-state error: `__ deg`
-- Overshoot: `__ %`
-- Gyro bias estimation error after convergence: `__ rad/s`
+### Angular velocity
+![Angular velocity](results/angular_velocity.png)
 
-The derivative gain provides damping, the proportional gain sets the correction strength, and the angular velocity decays toward zero as the satellite reaches the desired attitude.
+**Observations**
+
+- The roll, pitch and yaw angles converge toward the desired attitude.
+- The attitude error decreases toward zero, showing that the controller corrects the initial deviation.
+- The angular velocity decays as the satellite approaches the desired attitude, showing stable damping.
+- `Kp` sets the correction strength and `Kd` provides damping that reduces oscillations.
+
+*(Add your measured values: settling time `__ s`, steady-state error `__ deg`, overshoot `__ %`.)*
 
 ## 📁 Repository structure
 
@@ -97,67 +82,72 @@ The derivative gain provides damping, the proportional gain sets the correction 
 ├── README.md
 ├── LICENSE
 ├── .gitignore
-├── src/
-│   ├── init_params.m              # loads all parameters into the workspace
-│   ├── run_simulation.m           # runs the model and saves the plots
-│   └── ekf_attitude.m             # EKF MATLAB Function block code (if used)
 ├── models/
-│   ├── satellite_attitude_control.slx
-│   └── satellite_ekf.slx
+│   └── YOUR_MODEL_NAME.slx          # Simulink attitude-control model
+├── src/
+│   └── YOUR_VISUALIZATION_SCRIPT.m  # 3D visualization (uses workspace variables)
 ├── results/
 │   ├── final_angles.png
 │   ├── attitude_error.png
-│   └── angular_velocity.png
-├── docs/
-│   └── Internship_Report.pdf
-└── images/
-    └── simulink_schematic.png
+│   ├── angular_velocity.png
+│   └── 3d_visualization.png
+├── images/
+│   └── simulink_schematic.png
+└── docs/
+    └── Internship_Report.pdf
 ```
-
-*(Rename files to match your real ones.)*
 
 ## 🚀 How to run
 
-**Requirements:** MATLAB (R20XXx or newer), Simulink. *(Add any toolboxes you used, e.g. Aerospace Blockset.)*
+**Requirements:** MATLAB (R20XXx or newer) and Simulink. *(Add any extra toolbox you used.)*
 
-```matlab
-% 1. Open MATLAB in the repository folder
-cd path/to/satellite-attitude-control
+1. Clone the repository and open MATLAB in its folder:
+   ```bash
+   git clone https://github.com/USERNAME/satellite-attitude-control.git
+   ```
+2. Open the model `models/YOUR_MODEL_NAME.slx`.
+3. Click **Run** to simulate. The results are saved to the workspace by the *To Workspace* blocks.
+4. Run the visualization script:
+   ```matlab
+   run('src/YOUR_VISUALIZATION_SCRIPT.m')
+   ```
 
-% 2. Load the parameters
-run('src/init_params.m')
+> ⚠️ The visualization script needs the simulation variables in the workspace, so **run the Simulink model first**. Required variables: `VARIABLE_NAME_1`, `VARIABLE_NAME_2` *(replace with your real names)*.
 
-% 3. Run the simulation
-run('src/run_simulation.m')
-% or open models/satellite_attitude_control.slx and press Run
-```
+## 🔬 Theory behind the model
 
-## 🔭 Background covered in the internship
+The attitude is represented by a quaternion `q = [q0 q1 q2 q3]ᵀ` with `‖q‖ = 1`.
 
-- Satellite subsystems, missions, orbits (LEO/MEO/GEO/SSO) and Keplerian elements
-- ADCS operating modes (detumbling, Sun acquisition, Earth pointing, safe mode…)
+**Kinematics:**
+
+$$\dot{q} = \tfrac{1}{2}\,\Omega(\omega)\,q$$
+
+**Dynamics:**
+
+$$I\dot{\omega} = -\omega \times (I\omega + h) + T_{ext} + T_{ctrl}$$
+
+where `I` is the inertia matrix, `ω` the angular velocity, `h` the reaction-wheel angular momentum, `T_ext` the external disturbance torque, and `T_ctrl` the control torque.
+
+The full derivation, including Euler-to-quaternion conversion, the direction cosine matrix, and an Extended Kalman Filter with gyroscope bias estimation, is in the [internship report](docs/Internship_Report.pdf).
+
+## 📖 What the internship report covers
+
+- Satellite subsystems, missions, orbit types and Keplerian elements
+- ADCS operating modes (detumbling, Sun acquisition, Earth pointing, safe mode)
 - Attitude representations: Euler angles, quaternions, Rodrigues parameters
-- Environmental torques: gravity gradient, aerodynamic, solar radiation pressure, magnetic
-- Sensors: magnetometer, Sun sensor, gyroscope, star tracker, Earth/horizon sensor, GPS, accelerometer
+- Space perturbations: gravity gradient, aerodynamic, solar radiation pressure, magnetic
+- Attitude sensors: magnetometer, Sun sensor, gyroscope, star tracker, Earth sensor, GPS, accelerometer
 - Actuators: reaction wheels, magnetorquers, CMG, thrusters
-- Lab visits at CDS: clean room and optoelectronics laboratory (solar simulator, optical table, dark room)
+- Satellite modelling and EKF with gyroscope bias estimation
+- Visits at CDS: clean room and optoelectronics laboratory
 
 ## 🛣️ Future work
 
-- [ ] Add environmental disturbance torques (gravity gradient, aerodynamic, SRP, magnetic)
-- [ ] Add reaction-wheel and magnetorquer actuator models with saturation
+- [ ] Add environmental disturbance torques
+- [ ] Add reaction-wheel and magnetorquer models with saturation
+- [ ] Add sensor models and the EKF in the closed loop
+- [ ] Compare PD with LQR or backstepping control
 - [ ] Add detumbling with the B-dot algorithm
-- [ ] Replace the PD controller with LQR or backstepping and compare performance
-- [ ] Add sensor bias/misalignment and an Unscented or Multiplicative EKF
-- [ ] Python version of the simulation
-
-## 📚 References
-
-- Wertz, J. R. *Spacecraft Attitude Determination and Control*
-- Boussadia, H. (2016). *Application de la technique Backstepping Adaptatif pour la commande d'attitude des satellites.* USTO-MB
-- PW-Sat2 Team (2016). *Critical Design Review — Sun Sensor*
-- McBryde & Lightsey. *A Star Tracker Design for CubeSats*
-- Full list in the internship report.
 
 ## 👤 Author
 
