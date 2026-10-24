@@ -42,7 +42,7 @@ flowchart LR
 
 ## 🎬 3D Visualization
 
-[![3D visualization](results/3d_visualization.png)](https://youtu.be/YOUR_VIDEO_ID)
+[![3D visualization](Screenshot 2026-09-27 121801.png)](https://www.linkedin.com/posts/abderraouf-brada-16bab632a_matlab-simulink-satellite-ugcPost-7509969728082194432-vg0t/?highlightedUpdateUrn=urn%3Ali%3Aactivity%3A7509969769119518720&highlightedUpdateType=SOCIAL_SHARE&origin=SOCIAL_SHARE&utm_source=share&utm_medium=member_android&rcm=ACoAAFMZvGMBeNow1kzSYz6IE3IL9L0CFQHpDNg)
 
 *Click the image to watch the simulation video.*
 
