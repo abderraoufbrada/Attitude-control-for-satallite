@@ -59,10 +59,10 @@ flowchart LR
 ## 📊 Results
 
 ### Final attitude angles
-![Final angles](Screenshot 2026-09-27 105803.png)
+![Final angles](<Screenshot 2026-09-27 105803.png>)
 
 ### Attitude error
-![Attitude error](Screenshot 2026-09-27 110158.png)
+![Attitude error](<Screenshot 2026-09-27 110158.png>)
 
 ### Angular velocity
 ![Angular velocity](results/angular_velocity.png)
